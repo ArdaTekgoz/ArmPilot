@@ -1,6 +1,6 @@
 # ArmPilot - Geliştirme ve öğrenme raporu
 
-Proje sahibi: Arda TEKGÖZ | Başlangıç: 15 Ekim 2026 | Durum: ARM-01 R2 belge aşaması tamamlandı; ARM-02 henüz başlamadı
+Proje sahibi: Arda TEKGÖZ | Başlangıç: 15 Ekim 2026 | Durum: ARM-01 R2 tamamlandı; R3 planı onaylandı; ARM-02 haftaya başlayacak
 
 Bu belge çalışma boyunca güncellenecek teknik raporun kaynağıdır. Yapılmamış uygulamalar ve ölçümler sonuç olarak yazılmaz. Tamamlanan aşamalarda amaç, yöntem, karar gerekçeleri, sonuçlar ve sınırlamalar biriktirilir.
 
@@ -12,7 +12,7 @@ Güncel R1 hedefi: Kendi imal edilecek 6 eksenli kol için masaüstü ArmPilot u
 
 ## 2. Başlangıç kaynağı ve plan
 
-Kaynak: Kullanıcının sağladığı **ArmPilot Proje Raporu ve Yol Haritası**, 12 Ekim 2026, 16 sayfa. Özellikle s. 1-3 genel kapsam, s. 4 ARM-01, s. 16 kayıt şablonu başlangıçta temel alınmıştır. Kaynak dosya yerel olarak incelenmiştir; bu depoya eklenmemiştir. Aşağıdaki tablo eski kapsamın tarihsel tahminidir. Güncel ürün hedefi ve görev içeriklerine etkisi `docs/yol-haritasi-revizyonu.md` içinde kayıtlıdır; PDF ve web görev kartları henüz güncellenmedi.
+Kaynak: Kullanıcının sağladığı **ArmPilot Proje Raporu ve Yol Haritası**, 12 Ekim 2026, 16 sayfa. Özellikle s. 1-3 genel kapsam, s. 4 ARM-01, s. 16 kayıt şablonu başlangıçta temel alınmıştır. Kaynak dosya yerel olarak incelenmiştir; bu depoya eklenmemiştir ve değiştirilmemiştir. Aşağıdaki tablo eski kapsamın tarihsel tahminidir. Güncel ürün hedefi ve görev içeriklerine etkisi `docs/yol-haritasi-revizyonu.md` içinde kayıtlıdır. Kullanıcı onaylı R3 görevleri `docs/arm-gorevleri-r3.md`, güncel PDF `output/pdf/arm-rapor-r3.pdf` içindedir; web kartları aynı R3 plan verisinden güncellenir.
 
 | Aşama | İş paketleri | Başlangıç tahmini |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ Kaynak: Kullanıcının sağladığı **ArmPilot Proje Raporu ve Yol Haritası**
 | Fiziksel demo ve kapanış | ARM-19-23 | 30 saat |
 | Kontrollü devam | ARM-24 | 4 saat |
 
-Eski kapsamın toplam ilk tahmini 138 saat, ilk yazılım teslimatı tahmini 56 saattir. Bu değerler altı eksenli R1 kapsamına taşınmaz; yeni tahmin henüz çıkarılmadı. Ön koşullar ve kanıtlar ilerlemeyi belirler. Donanım alımı yük/bütçe değerlendirmesine, tüm kol devreye alma ise tek eklem doğrulamasına bağlıdır.
+Eski kapsamın toplam ilk tahmini 138 saat, ilk yazılım teslimatı tahmini 56 saattir. Bu değerler altı eksenli kapsam için geçersizdir. R3'te geçici toplam 242 saat, donanımsız yazılım kapısına kadar 112 saat öngörülür; bunlar ölçülmüş süre veya taahhüt değildir. ARM-02 ve ARM-04 sonunda yeniden tahmin edilir. Ön koşullar ve kanıtlar ilerlemeyi belirler. Donanım alımı yük/bütçe değerlendirmesine, tüm kol devreye alma ise tek eklem doğrulamasına bağlıdır.
 
 ## 3. Karar günlüğü
 
@@ -106,3 +106,19 @@ Kullanıcı MakerWorld bağlantısını verdi ve gerekirse bugün CAD montajı y
 ## 5. Sonraki oturumlar için kayıt biçimi
 
 Her oturum: tarih ve görev kodu; amaç/beklenen davranış; yöntem; karar ve gerekçesi; Arda'nın uygulaması; AI/kütüphane yardımı; beklenen/gerçekleşen sonuç; kanıt yolu; gerçek süre; açıklanabilen konu; açık sorun ve sonraki adım.
+
+## 6. R3 plan ve çalışma haritası güncellemesi - 15 Ekim 2026
+
+**Yetki ve amaç:** Arda, yol haritası incelemesinde sunulan sekiz değişikliği onayladı ve kendi çalışma haritasındaki görevlerle raporun birlikte güncellenmesini istedi. Kapsam değişikliği sessizce yapılmadı. Tam değişiklik tablosu `docs/yol-haritasi-revizyonu.md` başındaki R3 kaydında.
+
+**Yapılan iş:** 24 görevin amaç, adım, ön koşul, kabul, kanıt, öğrenme ve donanım bekleme davranışları yenilendi. ARM-02 iki alt oturuma ayrıldı; robot tanımı ve MoveIt yapılandırması açık kabul oldu. ArmPilot'un kendi masaüstü/3B görünümü, XYZ+yönelim, plan/önizleme/yürütme, erken mock kontrolcü, gerçek protokol köprüsü ve bağımsız poz ölçümleri zincire işlendi. ARM-09'daki mock denemesi ARM-10'dan önce; ARM-14 gerçek protokol hata testidir. Görev kodları ARM-01–24 olarak korundu.
+
+**Katkı:** Arda ürün hedefini, öğrenme yöntemini, kapsam değişikliğini ve site/rapor güncellemesini onayladı. AI onaylı plan metinlerini, doküman/PDF üretimini ve site entegrasyonunu hazırladı. Arda'nın öğrenme kodlarını yazdığı, ortam kurduğu veya fiziksel deney yaptığı iddia edilmedi.
+
+**Süre:** ARM-01 için daha önce verilen 3 saat kullanıcı tahmini korunur. Bu plan güncellemesinin ek insan çalışma süresi henüz ölçülmedi; toplam süreye uydurma değer eklenmedi.
+
+**Güncel plan:** `docs/arm-roadmap-r3.json` yapılandırılmış kaynak; görev kartları, R3 PDF ve site ArmPilot verisi onunla eşleştirilir. Diğer iki projenin görev/rapor içeriği korunur. Site tarayıcı kayıtlarında eski kabul işaretleri yeni ölçütlere doğrudan taşınmaz; not/süre ve önceki durum arşivde korunur. İlerlemiş revize kartların yeni kabulü tekrar doğrulanır. Sunucudan kişisel ilerleme okunmadı ve tamamlanma uydurulmadı.
+
+**Sıradaki çalışma:** ARM-02 haftaya. Önce Arda'nın birim dönüşümleri ve Python/Git küçük örneği; sonra resmî sürüm uyumluluğu ve ROS/MoveIt/UI ortam denemesi. Bugün ARM-02 uygulamasına geçilmedi.
+
+**Yayın ve doğrulama sonucu:** Mevcut çalışma haritası https://arda-mekatronik-calisma-haritasi.decent-cloud-1314.chatgpt.site/ üzerinde **site sürümü 2**, kaynak commit'i `a11ba5bd888d8ee2804774e128c8a8323a9d021c` ile yayınlandı; Sites sonucu `succeeded`. Erişim kitlesi değişmedi. 24 görev ve bağımlılık döngüsüzlüğü, 242 saat toplamı, JSON/site/PDF eşleşmesi, diğer iki projenin içerik ve PDF'lerinin korunması doğrulandı. R3 PDF'in 28 sayfası render edilip incelendi. Tarayıcıda görev/not/süre/tamamlama akışı, sayfa yenilemede kalıcılık ve rapor kartı kontrol edildi; eski kayıt taşıma testleri geçti. Kanıt ve tekrar komutları: `evidence/roadmap-r3/README.md`. Bu kontroller robot yazılımı veya fiziksel başarı testi değildir.

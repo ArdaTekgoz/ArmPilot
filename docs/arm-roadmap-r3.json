@@ -1,0 +1,871 @@
+{
+  "id": "arm",
+  "title": "ArmPilot",
+  "subtitle": "Altı eksenli kol için masaüstü görüntüleme, planlama ve yürütme",
+  "weeklyHours": 4,
+  "totalHours": 242,
+  "estimateNote": "R3 süreleri ilk planlama varsayımıdır; taahhüt değildir. ARM-02 ve ARM-04 sonunda yeniden tahmin et. Haftada 4 saat; dört saatten uzun görevler birden fazla oturumdur. %25 pay yalnız senaryodur; tedarik ve başarısız denemeler dahil kesin bitiş tarihi verilmez.",
+  "vision": "ArmPilot: WE-R2.4 adayı temelinde kendi altı eksenli robotunu gösteren, XYZ + uç yönelimiyle hareket planlayan, önce önizleyen ve açık yürütme eylemiyle fiziksel kola aktaran masaüstü uygulaması.",
+  "scope": [
+    "Tek robot, altı döner eklem; WE-R2.4 hazır CAD adayı, gerçek boyutlar ARM-03’te doğrulanır.",
+    "ArmPilot’un kendi masaüstü penceresi ve 3B görünümü; RViz yalnız geliştirme referansı.",
+    "XYZ mm + uç yönelimi; başlangıçta tanımlı yönelim hazır seçenekleri.",
+    "Planla → Önizle → Yürüt; statik modellenmiş sahnede çarpışma denetimli noktadan noktaya hareket.",
+    "v0.1 donanımsız mock kontrolcü; v1.0 kalibre edilmiş fiziksel altı eklem ve bağımsız poz ölçümü."
+  ],
+  "outOfScope": [
+    "Dinamik engel algılama/kaçınma ve kamera otonomisi.",
+    "Lazer, çizimden takım yolu ve proses kontrolü.",
+    "Isı haritası, gripper aktüasyonu, neural IK ve çoklu robot.",
+    "Dinamik/temas simülasyonu ve endüstriyel güvenlik sertifikasyonu."
+  ],
+  "definitionOfDone": [
+    "v0.1: kendi robot modelinde kendi ArmPilot penceresinden XYZ+yönelim planı, önizleme ve mock yürütme; başarılı/reddedilen senaryolar.",
+    "v1.0: altı eklemli fiziksel yürütme, kalibrasyon, durdurma/kopma denemeleri ve bağımsız 10 poz × 3 tekrar ölçümü.",
+    "10 mm konum / 5° yönelim geçici tasarım hedefleridir; garanti değil. Hedef değişikliği gerekçeli kullanıcı onayıyla yapılır.",
+    "Kod, kurulum, model, ham ölçüm, kaynaklar ve Arda/AI/kütüphane katkısı kayıtlı."
+  ],
+  "phases": [
+    {
+      "name": "A — Kapsam ve temel",
+      "hours": 16,
+      "taskIds": [
+        "ARM-01",
+        "ARM-02"
+      ]
+    },
+    {
+      "name": "B — Kinematik ve robot modeli",
+      "hours": 42,
+      "taskIds": [
+        "ARM-03",
+        "ARM-04",
+        "ARM-05",
+        "ARM-06"
+      ]
+    },
+    {
+      "name": "C — ArmPilot ve planlama",
+      "hours": 54,
+      "taskIds": [
+        "ARM-07",
+        "ARM-08",
+        "ARM-09",
+        "ARM-10"
+      ]
+    },
+    {
+      "name": "D — Donanım tasarımı",
+      "hours": 44,
+      "taskIds": [
+        "ARM-11",
+        "ARM-12",
+        "ARM-13",
+        "ARM-14"
+      ]
+    },
+    {
+      "name": "E — Kontrol ve montaj",
+      "hours": 42,
+      "taskIds": [
+        "ARM-15",
+        "ARM-16",
+        "ARM-17",
+        "ARM-18"
+      ]
+    },
+    {
+      "name": "F — Fiziksel demo ve kapanış",
+      "hours": 40,
+      "taskIds": [
+        "ARM-19",
+        "ARM-20",
+        "ARM-21",
+        "ARM-22",
+        "ARM-23"
+      ]
+    },
+    {
+      "name": "G — Kontrollü devam",
+      "hours": 4,
+      "taskIds": [
+        "ARM-24"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "ARM-01",
+      "phase": "A — Kapsam ve temel",
+      "title": "Kullanım senaryosu ve altı eksenli sürüm sözleşmesi",
+      "hours": 4,
+      "depends": [],
+      "objective": "Altı eksenli masaüstü ArmPilot ürününü, öğrenme amacını ve v0.1/v1.0 sınırlarını ölçülebilir biçimde tanımla. R2 belge kapanışı 15 Ekim 2026 tarihinde yapıldı.",
+      "steps": [
+        "XYZ (mm) + uç yönelimi hedefi, 3B görüntüleme, Planla → Önizle → Yürüt akışını tanımla.",
+        "WE-R2.4 adayını, J1-J6 eksenlerini ve flanş/TCP ayrımını CAD görüntüsü ve kaynaklı AI şemasıyla açıkla. Kullanıcı talebiyle elle çizim yerine bu kanıt kabul edildi.",
+        "Yaklaşık 400 mm erişim, 100 g toplam harici uç kütlesi, 5°/s ve 10°/s² değerlerini doğrulanmamış tasarım varsayımı olarak kaydet.",
+        "Isı haritası, lazer, kamera otonomisi, gripper sürme ve çizimden takım yolunu sonraki sürümlere ayır; Arda/AI katkısını belirt."
+      ],
+      "acceptance": [
+        "Bir sayfalık kapsamda giriş, çıktı, hata davranışı, v0.1/v1.0 ve sürüm dışı işler bulunuyor.",
+        "10 mm konum ve 5° yönelim hatasının garanti değil tasarım hedefi olduğu yazılı; fiziksel değerlendirme 10 poz × 3 tekrar olarak taslaklandı.",
+        "CAD görüntüsü, AI eksen şeması, kaynaklar ve açık katkı kaydı depoda; 3 saat aktif çalışma kullanıcı tahmini olarak kayıtlı."
+      ],
+      "evidence": "docs/arm-01-kapsam.md, output/pdf/arm-01-kapsam.pdf, evidence/ARM-01 ve 65142f1 kapanış commit’i.",
+      "learn": "Gereksinim yazımı, konum/yönelim ve serbestlik derecesi; bağımsız altı eksen açıklaması henüz sınanmadı.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-02",
+      "phase": "A — Kapsam ve temel",
+      "title": "Python temeli ve ROS 2/MoveIt ortam uyumluluğu",
+      "hours": 12,
+      "depends": [
+        "ARM-01"
+      ],
+      "objective": "ARM-02’ye haftaya başla. Öğrenme örneğiyle ürün ortamını iki ayrı alt oturumda doğrula; tek dört saatlik güne sıkıştırma.",
+      "steps": [
+        "Oturum A (~4 saat): bağımsız Python ortamı, Git çalışma döngüsü, mm↔m ve derece↔radyan dönüşümlerini Arda yazsın; küçük giriş/çıktı örnekleri çalışsın.",
+        "Oturum B (~8 saat; gerekirse böl): güncel resmî destek tablosundan OS/ROS 2/MoveIt 2/ros2_control eşleşmesini seç; Windows ile çalışma yolunu gerekçelendir.",
+        "Bir referans modelde joint_states al, planlama isteği gönder ve sahte kontrolcüde tek yörünge sonucunu gözle. Bu yalnız ortam denemesidir; kendi kolumuzun kabulü değildir.",
+        "ArmPilot UI/3B teknoloji adayını, ROS köprüsünü ve paket sürümlerini kısa uyumluluk denemesiyle seç; temiz tekrar için komutları kaydet."
+      ],
+      "acceptance": [
+        "Arda birim dönüşümlerini kendi yazdığı örnekle açıklar; beklenen/gerçekleşen sonuçlar kayıtlı.",
+        "Seçilen OS, dağıtım ve paket sürümleri ile planlama/durum/eylem haberleşmesi denemesi yeniden üretilebiliyor.",
+        "UI/3B katmanı ve ROS bağlantı kararı gerekçeli; başarısız denemeler ve kalan riskler kayıtlı."
+      ],
+      "evidence": "Ortam kurulum notu, sürüm listesi, birim örnekleri ve referans robot deneme kaydı.",
+      "learn": "Python birimleri, sanal ortam, Git ve ROS topic/service/action ayrımı.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-03",
+      "phase": "B — Kinematik ve robot modeli",
+      "title": "WE-R2.4 geometrisini ve altı eklemli robot tanımını çıkar",
+      "hours": 12,
+      "depends": [
+        "ARM-02"
+      ],
+      "objective": "Yerel CAD’i robot tanımının tek geometri kaynağı yap; UR5 sayısal boyutlarını kopyalama.",
+      "steps": [
+        "Kaynak tasarımın sürümünü/lisansını kaydet; J1-J6 merkezleri, yerel eksenler, sıfır duruşu ve mesafeleri CAD’den ölç.",
+        "base_link, altı döner eklem, flanş ve sabit TCP çerçevesi için tablo hazırla; CAD birimleri ile ROS metre/radyanı açıkça dönüştür.",
+        "URDF/Xacro, basitleştirilmiş görsel/çarpışma geometrileri ve geçici limitleri oluştur; robot_state_publisher ile göster."
+      ],
+      "acceptance": [
+        "Altı eklem ve TCP zinciri ölçü tablosuyla izlenebilir; tek tek pozitif eklem hareketi CAD eksenleriyle karşılaştırıldı.",
+        "URDF yükleniyor; bağlantısız link veya birim hatası yok; 400 mm erişim ve aday görev kutusu geometriye göre yeniden değerlendirildi."
+      ],
+      "evidence": "CAD ölçü tablosu, model sürümü, URDF/Xacro ve altı tek-eklem ekran kaydı.",
+      "learn": "Referans çerçevesi, TCP, yerel eksen ve CAD→robot modeli dönüşümü.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-04",
+      "phase": "B — Kinematik ve robot modeli",
+      "title": "Kendi FK örneğini yaz ve robot modeliyle karşılaştır",
+      "hours": 10,
+      "depends": [
+        "ARM-03"
+      ],
+      "objective": "İleri kinematiği öğren; kütüphane çıktısını anlamadan kullanma.",
+      "steps": [
+        "Arda önce 2R düzlemsel FK’yi elle ve Python ile hesaplasın; sıfır ve dik açı örnekleri seçsin.",
+        "Homojen dönüşüm çarpımını adım adım altı eklem zincirine bağla; TCP ofsetini ekle.",
+        "En az beş bilinen duruşta kendi zincirinin konum/yönelimini robot tanımı/RViz çıktısıyla karşılaştır."
+      ],
+      "acceptance": [
+        "2R örnek Arda’nın kodu ve açıklamasıyla kayıtlı; özel duruş sonuçları beklenenle uyumlu.",
+        "Beş 6R duruşta konum ve dönme matrisi farkı raporlandı; sayısal tolerans seçildi ve açıklanıyor."
+      ],
+      "evidence": "FK öğrenme kodu, elle çözüm/hesap notu ve karşılaştırma tablosu.",
+      "learn": "FK, dönüşüm zinciri, dönme matrisi ve TCP ofseti.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-05",
+      "phase": "B — Kinematik ve robot modeli",
+      "title": "2R IK öğren ve altı eksenli ürün çözücüsünü yapılandır",
+      "hours": 10,
+      "depends": [
+        "ARM-04"
+      ],
+      "objective": "Öğrenme için kendi analitik IK örneğin ile üründeki hazır 6R çözücüyü ayır.",
+      "steps": [
+        "Arda 2R analitik IK için iki dirsek çözümünü ve erişilemeyen noktayı uygulasın.",
+        "MoveIt Setup Assistant ile altı eklemli planning group, base/tip, home duruşu, SRDF ve IK eklentisini yapılandır.",
+        "XYZ+yönelim pozlarına IK üret; her çözümü FK ve eklem limitleriyle geri doğrula; çoklu çözüm seçiminde başlangıç duruşunu kullan."
+      ],
+      "acceptance": [
+        "Arda’nın 2R örneğinde iki dal ve erişilemeyen hedef davranışı çalışıyor.",
+        "Kendi robotumuzun SRDF/IK yapılandırması yükleniyor; en az beş başarılı poz ve iki başarısız örnek kayıtlı.",
+        "Hazır çözücü katkısı açık; FK geri doğrulama toleransları yazılı."
+      ],
+      "evidence": "2R IK kodu, MoveIt config ve başarılı/başarısız poz tablosu.",
+      "learn": "IK çokluluğu, sayısal çözücü, seed ve yapılandırma doğrulaması.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-06",
+      "phase": "B — Kinematik ve robot modeli",
+      "title": "Poz erişimi, limitler ve planlama sahnesini doğrula",
+      "hours": 10,
+      "depends": [
+        "ARM-05"
+      ],
+      "objective": "XYZ’ye erişmenin tek başına istenen yönelimle geçerli bir poz anlamına gelmediğini göster.",
+      "steps": [
+        "Eklem limitleri, model öz çarpışmaları ve sabit masa/taban engellerini MoveIt sahnesine ekle; devre dışı çiftleri gerekçelendir.",
+        "Geçerli poz, erişim dışı poz, aynı XYZ’de olanaksız yönelim, limit ihlali ve tekillik yakınını örnekle.",
+        "Geometrik erişilememe, IK zaman aşımı ve geçerli yol bulunamamasını farklı sonuçlar olarak kaydet."
+      ],
+      "acceptance": [
+        "Beklenen/gerçekleşen sonuç tablosunda en az sekiz örnek var; geçersiz hedef yeni hareket başlatmıyor.",
+        "URDF+SRDF+joint_limits+kinematics+planning pipeline yapılandırması kendi modelimizle çalışıyor.",
+        "Sabit sahne ve model kontrollerinin dinamik ortam güvenliği veya tüm uzay için erişim garantisi olmadığı açık."
+      ],
+      "evidence": "Poz doğrulama tablosu, planlama sahnesi ve sürümlü MoveIt yapılandırması.",
+      "learn": "Poz uzayı, çarpışma, limit, tekillik ve hata sınıfları.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-07",
+      "phase": "C — ArmPilot ve planlama",
+      "title": "ArmPilot’un kendi 3B masaüstü görünümünü oluştur",
+      "hours": 16,
+      "depends": [
+        "ARM-06"
+      ],
+      "objective": "Ürün olarak kendi pencerende robotu görüntüle; RViz geliştirme karşılaştırması olsun.",
+      "steps": [
+        "ARM-02’de seçilen UI/3B katmanında model yükleme, kamera döndürme/yakınlaştırma ve eksen görünümünü kur.",
+        "base, flanş ve TCP’yi göster; joint_states verisiyle altı eklemi güncelle.",
+        "Mevcut durum, hedef ve planlanan hareketi görsel olarak ayır; bağlantı ve veri tazeliğini göster; RViz ile aynı duruşu karşılaştır."
+      ],
+      "acceptance": [
+        "Ayrı ArmPilot penceresinde kendi modelimiz açılıyor, kamera kontrol ediliyor ve altı eklem durum verisiyle güncelleniyor.",
+        "TCP/eksenler ve mevcut/planlanan durum ayırt ediliyor; eski veri sessizce canlı durum gibi gösterilmiyor."
+      ],
+      "evidence": "ArmPilot pencere videosu ve aynı duruşun RViz karşılaştırması.",
+      "learn": "Masaüstü arayüz, sahne grafiği, dönüşümler ve durum görselleştirme.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-08",
+      "phase": "C — ArmPilot ve planlama",
+      "title": "XYZ+yönelim ve Planla–Önizle–Yürüt akışını kur",
+      "hours": 12,
+      "depends": [
+        "ARM-07"
+      ],
+      "objective": "Hedef girişi ile fiziksel hareket yetkisini açık kullanıcı eylemleriyle ayır.",
+      "steps": [
+        "XYZ’yi mm, yönelimi isimli ve sayısal tanımı kayıtlı hazır seçeneklerle al; base/TCP referansını göster.",
+        "Planla, Önizle ve Yürüt işlemlerini; simülasyon/fiziksel modunu, bağlantıyı ve hata durumlarını tasarla.",
+        "Hedef, model, sahne veya başlangıç durumu değişince planı geçersiz kıl. Hareket sırasında yeni hedefi reddet; kontrollü iptal/durmayı ayrı eylem olarak tanımla."
+      ],
+      "acceptance": [
+        "Geçersiz giriş/poz anlaşılır hata veriyor ve yeni hareket başlatmıyor; planlama yürütme çağrısını kendiliğinden yapmıyor.",
+        "Yalnız güncel ve önizlenmiş plan açık Yürüt eylemiyle gönderilebiliyor; fiziksel yürütme gerçek köprü doğrulanana kadar kilitli.",
+        "Plan kimliği, model/sahne sürümü, başlangıç durumu ve aktif mod kullanıcıya izlenebilir."
+      ],
+      "evidence": "Durum geçiş tablosu ve başarılı/reddedilen arayüz akış videosu.",
+      "learn": "Girdi doğrulama, durum makinesi, işlem yetkisi ve plan geçerliliği.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-09",
+      "phase": "C — ArmPilot ve planlama",
+      "title": "Statik sahnede hareket planla ve sahte kontrolcüde yürüt",
+      "hours": 18,
+      "depends": [
+        "ARM-08"
+      ],
+      "objective": "Donanım olmadan zamanlı altı eklemli yörüngeyi uçtan uca doğrula; v0.1’in yürütme provası burada yapılır.",
+      "steps": [
+        "Alt oturum A: Arda tek eklem için kübik zaman ölçekleme örneğini yazsın; konum/hız/ivme sınırlarını yorumlasın.",
+        "Alt oturum B: MoveIt ile sabit modellenmiş sahnede pozdan poza çarpışma denetimli yol planla; zaman parametrelemesi ve eklem hız/ivme sınırlarını uygula.",
+        "Alt oturum C: FollowJointTrajectory destekli mock/fake kontrolcüye yörünge gönder, joint_states ve sonuç/iptal akışını ArmPilot’ta göster.",
+        "Yol bulunamaması, limit, eskimiş plan ve başlangıç durumu uyuşmazlığını dene; simülasyon modunda fiziksel cihaza çıkış olmadığını doğrula."
+      ],
+      "acceptance": [
+        "Kendi kübik örneği ile ürün planlayıcısının katkısı ayrılmış; zaman damgaları artan, eklem isimleri ve hız/ivme limitleri doğrulanmış.",
+        "Kendi 6R modelimizde mock kontrolcüyle plan→önizleme→yürütme→durum/sonuç akışı çalışıyor; iptal ve reddetme örnekleri kayıtlı.",
+        "Model/sabit sahne çarpışma kontrolü var; dinamik engel algılama, proses takım yolu veya dinamik simülasyon iddiası yok."
+      ],
+      "evidence": "Kübik öğrenme örneği, yörünge dosyası, mock yürütme videosu ve hata tablosu.",
+      "learn": "Hareket planı, zaman parametrelemesi, trajectory action ve mock donanım.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-10",
+      "phase": "C — ArmPilot ve planlama",
+      "title": "ArmPilot v0.1 donanımsız teslimatını kapat",
+      "hours": 8,
+      "depends": [
+        "ARM-09"
+      ],
+      "objective": "Kendi altı eksenli robotumuzla masaüstü uygulamasının yeniden üretilebilir yazılım teslimatını yap.",
+      "steps": [
+        "Temiz ortam yönergesinden uygulamayı başlat; kendi modelini yükle ve XYZ+yönelimle başarılı plan/önizleme/mock yürütme göster.",
+        "Erişilemeyen hedef, engel nedeniyle yol yokluğu, eski plan ve kopuk/eski durum verisi örneklerini göster.",
+        "Kurulum, örnekler, bilinen sınırlar, Arda/AI/kütüphane katkısı ve sürüm notunu yaz; Git’te v0.1 işaretle."
+      ],
+      "acceptance": [
+        "ARM-03–09 kanıtları mevcut; yalnız referans robot/RViz demosu bu kapıyı kapatmıyor.",
+        "Kendi ArmPilot penceresinde en az üç geçerli ve üç reddedilen senaryo tekrarlanabiliyor; fiziksel başarı iddia edilmiyor."
+      ],
+      "evidence": "v0.1 sürüm kaydı, temiz kurulum günlüğü, demo ve senaryo sonuçları.",
+      "learn": "Entegrasyon kabulü, yeniden üretilebilirlik ve sürümleme.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-11",
+      "phase": "D — Donanım tasarımı",
+      "title": "Altı eklem için yük, aktüatör ve bütçe kararını ver",
+      "hours": 10,
+      "depends": [
+        "ARM-10"
+      ],
+      "objective": "Donanım satın almadan önce erişim/yük/hız varsayımlarını gerçek geometri ve kütlelerle değerlendir.",
+      "steps": [
+        "Hazır baskı kolunun link, motor, redüktör ve bilek kütlelerini topla; en kötü statik momentleri ve hareket payını hesapla.",
+        "100 g toplam harici kütle ve yaklaşık 30 mm ağırlık merkezi varsayımını gözden geçir; gripper kütlesini dahil et.",
+        "Tork-hız eğrisi, redüksiyon, boşluk, sürücü, geri besleme, güç ve maliyeti karşılaştır; 10 mm/5° hedefleri için ölçüm yöntemini seç."
+      ],
+      "acceptance": [
+        "Altı eklem için gerekçeli aktüatör/geri besleme tablosu, bütçe ve risk kaydı var; yalnız stall torkuyla seçim yapılmadı.",
+        "Erişim/yük/hız/ivme ve hata hedefleri gerekçeyle korunmuş veya değişiklik önerisi olarak kaydedilmiş; satın alma listesi somut."
+      ],
+      "evidence": "Moment hesabı, veri sayfaları, BOM, bütçe ve ölçüm yöntemi kararı.",
+      "learn": "Yük hesabı, tork-hız, redüktör boşluğu ve ölçülebilir tasarım.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-12",
+      "phase": "D — Donanım tasarımı",
+      "title": "Hazır CAD tasarımını uyarlayıp baskı planını doğrula",
+      "hours": 12,
+      "depends": [
+        "ARM-11"
+      ],
+      "objective": "WE-R2.4 veya seçilen benzer tasarımı seçilen donanıma uydur; kaynak tasarımı özgün CAD çalışması diye sunma.",
+      "steps": [
+        "Dosya sürümü/lisans/atıf kaydını tamamla; motor, yatak, redüktör, kablo geçişi ve bilek uyumunu denetle.",
+        "Kritik toleranslar için baskı kuponu veya tek eklem numunesi al; boşluk ve bağlantı uyumunu ölç.",
+        "Üretim/montaj sırasını ve ölçülecek eksen mesafelerini kaydet; değişen geometriyi robot tanımına geri işle."
+      ],
+      "acceptance": [
+        "CAD ve BOM seçilen aktüatörle uyumlu; baskı kuponu/numune ölçüleri ve düzeltmeler kayıtlı.",
+        "Kaynak tasarım, Arda’nın uyarlaması ve AI desteği ayrılmış; güncel model ile geometri farkları izlenebilir."
+      ],
+      "evidence": "Atıflı CAD sürümü, uyarlama farkları, kupon fotoğrafı/ölçüleri ve baskı planı.",
+      "learn": "Hazır tasarım uyarlama, imalat toleransı ve model tutarlılığı.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "Yazıcı/numune yoksa CAD inceleme ve BOM hazırlanabilir; fiziksel kupon ölçütü tamamlanmış sayılmaz. Bağımsız protokol taslağına geçilebilir."
+    },
+    {
+      "id": "ARM-13",
+      "phase": "D — Donanım tasarımı",
+      "title": "Güç, STM32 köprüsü ve kontrol protokolünü tasarla",
+      "hours": 12,
+      "depends": [
+        "ARM-11"
+      ],
+      "objective": "ROS yörünge yürütme arayüzü ile gerçek altı eklem arasında somut bir donanım sözleşmesi kur.",
+      "steps": [
+        "Güç dağıtımı, sürücü/STM32 pinleri, haberleşme ve donanımdan bağımsız durdurma davranışını şemala.",
+        "FollowJointTrajectory → ros2_control donanım arayüzü veya eşdeğer sürücü → STM32 → altı sürücü zincirini seç ve gerekçelendir.",
+        "Eklem sırası/birimler, zamanlama, komut kimliği, onay, durum, hata, watchdog ve yeniden bağlantı sözleşmesini yaz.",
+        "Her durum alanını ölçülen, komutlanan veya tahmin edilen olarak işaretle; sensörsüz step sayacını gerçek açı diye sunma."
+      ],
+      "acceptance": [
+        "Altı eklem için komut/durum mesajı, protokol sürümü, güç şeması ve kopma davranışı belirli.",
+        "Ölçülen/komutlanan/tahmin edilen durum ayrımı açık; izinsiz veya yeniden bağlantıyla kendiliğinden hareket yok."
+      ],
+      "evidence": "Elektrik/blok şeması, protokol sözleşmesi ve bridge mimari kararı.",
+      "learn": "Gömülü sistem arayüzü, zamanlama ve durum verisinin kaynağı.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-14",
+      "phase": "D — Donanım tasarımı",
+      "title": "Gerçek köprüyü protokol emülatörüyle hata testine al",
+      "hours": 10,
+      "depends": [
+        "ARM-09",
+        "ARM-13"
+      ],
+      "objective": "ARM-09’daki hazır mock kontrolcüden farklı olarak seçilen gerçek haberleşme protokolünü fiziksel kol olmadan dene.",
+      "steps": [
+        "STM32/protokol emülatörüyle gerçek köprü paketlerini, altı eklem sırasını ve birimlerini doğrula.",
+        "Gecikmiş/kayıp/bozuk paket, kopma, watchdog, yeniden bağlanma ve eski komutu tekrar gönderme durumlarını uygula.",
+        "Plan/model/başlangıç durumu uyuşmazlığında yürütmenin engellendiğini ve hata sonucunun arayüze ulaştığını kaydet."
+      ],
+      "acceptance": [
+        "Gerçek köprü sözleşmesiyle uçtan uca yörünge/durum/sonuç akışı çalışıyor; en az altı hata senaryosu kayıtlı.",
+        "Kopma ve yeniden bağlantı yeni hareket başlatmıyor; emülatör sonucu fiziksel donanım başarısı olarak sunulmuyor."
+      ],
+      "evidence": "Protokol emülatörü, bridge kayıtları ve hata senaryo tablosu.",
+      "learn": "Protokol doğrulama, hata enjeksiyonu ve kontrollü toparlanma.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-15",
+      "phase": "E — Kontrol ve montaj",
+      "title": "Tek eklemi düşük hızla ölçerek devreye al",
+      "hours": 8,
+      "depends": [
+        "ARM-12",
+        "ARM-14"
+      ],
+      "objective": "Tüm kolu hareket ettirmeden gerçek motor/sürücü/geri besleme zincirini doğrula.",
+      "steps": [
+        "Sabitlenmiş tek eklemde güç ve kablo kontrolünü yap; yükü en aza indir ve durdurmayı dene.",
+        "Önce küçük açılar ve yaklaşık 1°/s ile yön, redüksiyon ve komut/ölçüm ilişkisini kontrol et.",
+        "Köprüden komut gönder; gerçek açıyı sensör veya bağımsız araçla ölç; akım/ısınma ve hata davranışını kaydet."
+      ],
+      "acceptance": [
+        "Pozitif/negatif küçük hareket, durdurma ve kopma sonucu ölçülmüş; eklem yönü/ölçeği modele uyuyor.",
+        "Komut ve gerçek açı ayrı kayıtlı; ölçüm olmadan doğruluk veya kapalı çevrim iddiası yok."
+      ],
+      "evidence": "Tek eklem videosu, komut/ölçüm tablosu ve güç/ısınma notu.",
+      "learn": "Devreye alma, ölçek/yön kontrolü ve bağımsız ölçüm.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-16",
+      "phase": "E — Kontrol ve montaj",
+      "title": "Tek eklem kalibrasyon ve kontrolünü doğrula",
+      "hours": 8,
+      "depends": [
+        "ARM-15"
+      ],
+      "objective": "Tam montajdan önce tek eklemde tekrarlanabilir davranış elde et ve kullanılan kontrol katkısını açıkla.",
+      "steps": [
+        "Sıfır/homing yöntemi, redüktör oranı, yön, limit ve hız/ivmeyi ölçüme göre kalibre et.",
+        "Aynı açıya iki yönden yaklaşmayı tekrarla; hata, tekrarlanabilirlik, boşluk ve sürüklenmeyi ayır.",
+        "Hazır sürücünün kontrolüyle Arda’nın yazdığı izleme/kontrol kodunu ayır; ölçüm gerekçesi varsa ayar değiştir."
+      ],
+      "acceptance": [
+        "Tek eklem için önceden belirlenmiş açı toleransı ve tekrar koşulu sağlanmış veya açık sorun olarak raporlanmış; çözümsüzken tüm kol devreye alınmıyor.",
+        "Kalibrasyon parametreleri, önce/sonra sonuç ve gerçek kontrol katkısı kayıtlı."
+      ],
+      "evidence": "Kalibrasyon dosyası, tekrar ölçümleri ve kontrol katkısı notu.",
+      "learn": "Kalibrasyon, boşluk, tekrarlanabilirlik ve kontrol katmanları.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-17",
+      "phase": "E — Kontrol ve montaj",
+      "title": "Altı eklemli kolu monte et ve modelini güncelle",
+      "hours": 16,
+      "depends": [
+        "ARM-16"
+      ],
+      "objective": "Doğrulanmış tek eklem yaklaşımını tüm kola kontrollü biçimde taşı.",
+      "steps": [
+        "Kaynak tasarıma uygun montajı, kablo paylarını, yatak/dişli boşluklarını ve taban sabitlemesini kontrol et.",
+        "Enerji verilecek eklemleri tek tek seç; diğerlerini destekle; her eklemde yön, ölçek ve durdurmayı dene.",
+        "Gerçek eksen mesafelerini, kütleleri ve limitleri ölç; URDF/çarpışma modeline farkları geri işle."
+      ],
+      "acceptance": [
+        "J1-J6 tek tek kontrol edilmiş; mekanik/kablo çakışmaları ve limitler kayıtlı.",
+        "Fiziksel montaj sürümü ve robot tanımı aynı geometriyi temsil ediyor; tüm kol eşzamanlı hareketi henüz kabul sayılmıyor."
+      ],
+      "evidence": "Montaj fotoğrafları, altı eklem kontrol tablosu ve model fark kaydı.",
+      "learn": "Montaj, sistematik kontrol ve fiziksel model eşleştirme.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-18",
+      "phase": "E — Kontrol ve montaj",
+      "title": "Altı eklem sıfırını, limitleri ve TCP’yi kalibre et",
+      "hours": 10,
+      "depends": [
+        "ARM-17"
+      ],
+      "objective": "Planlayıcının başlangıç pozunu fiziksel kola bağla.",
+      "steps": [
+        "Her eklem için homing/sıfır/ofset/limit prosedürünü uygula ve tekrar başlatma davranışını ölç.",
+        "Flanş→TCP dönüşümünü belirle; seçilen sabit takımın yönelim çerçevesini tanımla.",
+        "Kayıtlı durumu yalnız güncel referans ve geri besleme varsa yürütmeye hazır say; kalibrasyon değişince eski planları geçersiz kıl."
+      ],
+      "acceptance": [
+        "Altı eklem kalibrasyonu ve TCP dönüşümü sürümlü; en az üç yeniden başlatma/homing tekrarı kayıtlı.",
+        "Başlangıç durumu, veri kaynağı ve tazelik eşiği belirli; geçersiz kalibrasyonda yürütme kapalı."
+      ],
+      "evidence": "Kalibrasyon dosyası, TCP yöntemi ve tekrar tablosu.",
+      "learn": "Homing, ofset, takım çerçevesi ve kalibrasyon izlenebilirliği.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-19",
+      "phase": "F — Fiziksel demo ve kapanış",
+      "title": "Önizlenen planı gerçek altı eklemde yürüt",
+      "hours": 12,
+      "depends": [
+        "ARM-10",
+        "ARM-14",
+        "ARM-18"
+      ],
+      "objective": "ArmPilot’un açık yürütme eylemini doğrulanmış fiziksel zincire bağla.",
+      "steps": [
+        "Önce düşük hız ve küçük hareketlerle altı eklemi birlikte dene; simülasyon ve fiziksel modu görünür biçimde ayır.",
+        "Aynı model/sahne/kalibrasyon sürümündeki güncel başlangıçtan plan üret; önizlemeden sonra kullanıcı Yürüt eylemiyle gönder.",
+        "Gerçek/tahmin edilen durum, durdurma, haberleşme kopması ve yeniden başlatmayı kayıt altına al; hız artışını ölçümle gerekçelendir."
+      ],
+      "acceptance": [
+        "En az üç fiziksel pozdan poza hareket önizlenen plan kimliğiyle izlenebiliyor; hedef değiştirmek eski planı yürütmüyor.",
+        "Başlangıç uyuşmazlığı ve kesinti hareketi engelliyor/sonlandırıyor; sonuçlar arayüzde görülüyor, otomatik yeniden hareket yok."
+      ],
+      "evidence": "Plan kimlikli fiziksel demo, yörünge/durum kayıtları ve hata denemeleri.",
+      "learn": "Yürütme entegrasyonu, durum izleme ve kademeli doğrulama.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-20",
+      "phase": "F — Fiziksel demo ve kapanış",
+      "title": "10 poz × 3 tekrarda konum ve yönelimi ölç",
+      "hours": 10,
+      "depends": [
+        "ARM-19"
+      ],
+      "objective": "Fiziksel v1.0 tasarım hedeflerini bağımsız ölçümle değerlendir.",
+      "steps": [
+        "Doğrulanmış çalışma alanından on hedef poz ve her biri için üç tekrar seç; yük, yaklaşım yönü ve hızı sabitle.",
+        "XYZ’yi bağımsız ölç; yönelimi bilinen takım/ölçüm düzeniyle değerlendir. Sensör/ölçüm çözünürlüğü ve belirsizliğini yaz.",
+        "Konum hatasını normla, yönelim hatasını bağıl dönmenin açısıyla hesapla; en büyük hata ve dağılımı 10 mm/5° hedefleriyle ayrı karşılaştır."
+      ],
+      "acceptance": [
+        "30 denemenin hedef/ölçülen pozları, ham verileri ve ölçüm yöntemi kayıtlı; komut değerleri gerçek ölçüm yerine geçmiyor.",
+        "Geçerli kabul hedefleriyle konum ve yönelim ayrı değerlendirilmiş; hedef sağlanmadıysa başarı iddiası veya sessiz tolerans genişletme yok."
+      ],
+      "evidence": "Ham veri, ölçüm düzeneği fotoğrafı, hata grafikleri ve kabul tablosu.",
+      "learn": "Poz hatası, doğruluk/tekrarlanabilirlik ve ölçüm belirsizliği.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-21",
+      "phase": "F — Fiziksel demo ve kapanış",
+      "title": "Ölçüme dayalı tek iyileştirmeyi karşılaştır",
+      "hours": 6,
+      "depends": [
+        "ARM-20"
+      ],
+      "objective": "Gözlenen bir hatanın nedenini test ederek iyileştir; yeni özellik ekleme.",
+      "steps": [
+        "ARM-20’den baskın sorunu seç ve tek hipotez yaz; kalibrasyon, mekanik boşluk veya profil gibi bir değişken seç.",
+        "Değişikliği ve beklenen etkisini kaydet; aynı on poz/üç tekrar, yük ve ölçüm yöntemiyle yeniden dene.",
+        "Önce/sonra sonuçlarını ve yan etkileri değerlendir; faydasız değişikliği geri al veya sınırlamayı açıkla."
+      ],
+      "acceptance": [
+        "Aynı koşullarla karşılaştırılabilir önce/sonra veri var; iyileşme yoksa da dürüst sonuç yazılı.",
+        "v1.0 kabulü yeniden değerlendirilmiş; çözümsüz hedef ihlalleri sonraki belgelere taşınmış."
+      ],
+      "evidence": "Hipotez/değişiklik kaydı ve karşılaştırmalı ölçüm.",
+      "learn": "Deney tasarımı ve kanıta dayalı iyileştirme.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-22",
+      "phase": "F — Fiziksel demo ve kapanış",
+      "title": "Kurulum, model ve öğrenme raporunu tamamla",
+      "hours": 6,
+      "depends": [
+        "ARM-21"
+      ],
+      "objective": "Sistemi ve kişisel katkıyı bir başkasının izleyebileceği biçimde belgeye dönüştür.",
+      "steps": [
+        "Yazılım/donanım sürümleri, BOM, model, kalibrasyon ve protokol kimliklerini eşleştir.",
+        "Kurulum, başlangıç, plan/önizleme/yürütme, durdurma ve sık hatalar için yönergeler yaz.",
+        "Arda’nın yazdığı öğrenme kodlarını, ürün entegrasyonunu, AI yardımını ve hazır CAD/kütüphaneleri ayrı kaynaklandır."
+      ],
+      "acceptance": [
+        "Kurulum ve örnek senaryo yönergesi denenmiş; önemli parametreler/kalibrasyon sürümleri izlenebilir.",
+        "Rapor ölçüm sonuçlarını ve sınırlamaları içeriyor; yapılmayan işler veya hazır çözümler özgün başarı diye sunulmuyor."
+      ],
+      "evidence": "Güncel teknik/öğrenme raporu, kurulum yönergesi ve kaynak/katkı tablosu.",
+      "learn": "Teknik raporlama, yeniden üretilebilirlik ve katkı açıklama.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-23",
+      "phase": "F — Fiziksel demo ve kapanış",
+      "title": "ArmPilot’tan fiziksel ölçüme kadar demo hazırla",
+      "hours": 6,
+      "depends": [
+        "ARM-22"
+      ],
+      "objective": "Ürün davranışını ve öğrendiklerini somut bir demo ile anlat.",
+      "steps": [
+        "Kendi masaüstü uygulamasında model görüntüleme, XYZ+yönelim girişi, plan ve önizlemeyi göster.",
+        "Geçerli hedefi açık yürütme eylemiyle fiziksel kola gönder; bir reddedilen hedefte yeni hareket olmadığını göster.",
+        "Fiziksel ölçüm sonucunu, bilinen sınırları ve kişisel katkını açıkla; sürüm/model kimliklerini videoya veya notuna ekle."
+      ],
+      "acceptance": [
+        "Demo ArmPilot penceresinden fiziksel kola ve bağımsız ölçüme uzanıyor; yalnız RViz videosu değil.",
+        "Başarı ve reddetme örneği ile Arda’nın FK/IK/entegrasyon açıklaması var; ölçülmemiş kapasite iddiası yok."
+      ],
+      "evidence": "Demo videosu, senaryo listesi ve portföy özeti.",
+      "learn": "Teknik sunum, sistem davranışı ve kişisel katkıyı açıklama.",
+      "hardware": true,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    },
+    {
+      "id": "ARM-24",
+      "phase": "G — Kontrollü devam",
+      "title": "v1.0 kabulünü kapat ve sonraki tek adımı seç",
+      "hours": 4,
+      "depends": [
+        "ARM-23"
+      ],
+      "objective": "Ana sürümü kanıtıyla kapat; gelecek vizyonu kontrolsüz kapsam artışına dönüştürme.",
+      "steps": [
+        "ARM-01 sözleşmesi ve varsa onaylı hedef değişikliklerini gerçek ölçümlerle karşılaştır; eksik kabul varsa önce düzelt.",
+        "v1.0 sürüm notu, bilinen sınırlar, arşiv ve commit/tag kaydını tamamla; karşılanmayan hedefi tamamlandı diye etiketleme.",
+        "Isı haritası, kamera otonomisi, lazer veya çizimden takım yolundan yalnız birini ayrı sonraki sürüm önerisi olarak gerekçelendir; uygulamaya başlama."
+      ],
+      "acceptance": [
+        "v1.0 kabul tablosu, yazılım ve fiziksel kanıtlar eşleştirilmiş; açık zorunlu eksik yok.",
+        "Sonraki işlev ayrı kapsam/onay bekleyen öneri; ana v1.0 içinde kamera/lazer/otonomi iddiası yok."
+      ],
+      "evidence": "v1.0 sürüm kaydı, kabul matrisi ve sonraki sürüm önerisi.",
+      "learn": "Kabul kapanışı, sürüm sınırı ve kapsam yönetimi.",
+      "hardware": false,
+      "optional": false,
+      "fallback": "En küçük başarısız örneği ve beklenen/gerçekleşen sonucu kaydet. Eksik ön koşulu kapatmadan bağımlı göreve geçme."
+    }
+  ],
+  "gates": [
+    {
+      "after": "ARM-10",
+      "title": "Donanımsız v0.1",
+      "description": "Kendi model + ArmPilot + MoveIt + mock kontrolcü; ARM-09 kapanmadan geçilmez."
+    },
+    {
+      "after": "ARM-11",
+      "title": "Satın alma kararı",
+      "description": "Altı eklem moment, geri besleme, bütçe ve ölçüm kararı."
+    },
+    {
+      "after": "ARM-16",
+      "title": "Tek eklem doğrulaması",
+      "description": "Ölçümlü kalibrasyon ve tekrar; tüm kol devreye almadan önce."
+    },
+    {
+      "after": "ARM-20",
+      "title": "Fiziksel poz değerlendirmesi",
+      "description": "30 bağımsız ölçüm, konum/yönelim ayrı; başarısız hedef sessizce kabul edilmez."
+    }
+  ],
+  "workingMethod": [
+    "Her oturum tek küçük amaç, Arda’nın uygulaması, açıklaması, beklenen/gerçek sonuç ve kanıtla ilerler.",
+    "2R FK/IK ve kübik örneği Arda yazar; üründe 6R çözücü ve planlayıcı kütüphanesi kullanılabilir.",
+    "ARM-01 R2 tamamlandı; kullanıcı tahmini aktif süre 3 saat. ARM-02 haftaya başlar; bugün ortam/kod çalışması yapılmadı.",
+    "ARM-12 ve ARM-13, ARM-11’den sonra paralel yürüyebilir; ARM-15 her ikisinin gerekli kanıtlarını bekler."
+  ],
+  "risks": [
+    "Yerel CAD eksen/boyut uyumu henüz doğrulanmadı; referans WE modeli ölçülmüş yerel CAD yerine geçmez.",
+    "OS/ROS/MoveIt/3B UI uyumluluğu ARM-02’de seçilecek; paket sürümleri bugün sabitlenmedi.",
+    "Motor/sürücü/STM32 henüz mevcut değil; sensörsüz durum gerçek açı diye sunulamaz.",
+    "Baskı boşluğu/esneme, bilek kütlesi, kablo ve ölçüm belirsizliği 10 mm/5° hedeflerini etkileyebilir.",
+    "Statik sahne modeli gerçek dünyadaki modellenmemiş nesnelere karşı garanti vermez."
+  ],
+  "sources": [
+    {
+      "title": "WE-R2.4 kaynak tasarım - LoboCNC",
+      "url": "https://makerworld.com/tr/models/95279-we-r2-4-six-axis-robot-arm?from=search#profileId-318707"
+    },
+    {
+      "title": "MoveIt 2 mimari ve yürütme",
+      "url": "https://moveit.picknik.ai/main/doc/concepts/move_group.html"
+    },
+    {
+      "title": "MoveIt Setup Assistant - URDF/SRDF",
+      "url": "https://moveit.picknik.ai/main/doc/examples/setup_assistant/setup_assistant_tutorial.html"
+    },
+    {
+      "title": "MoveIt kontrolcü yapılandırması",
+      "url": "https://moveit.picknik.ai/main/doc/examples/controller_configuration/controller_configuration_tutorial.html"
+    },
+    {
+      "title": "ROS 2 resmî belgeler",
+      "url": "https://docs.ros.org/"
+    },
+    {
+      "title": "ros2_control resmî belgeler",
+      "url": "https://control.ros.org/"
+    }
+  ],
+  "updated": "2026-10-15",
+  "name": "ArmPilot",
+  "short": "Kendi 6 eksenli kolun için 3B görünüm, poz hedefi ve planlı hareket.",
+  "baseHours": 242,
+  "optionalHours": 0,
+  "revision": "R3",
+  "previousAcceptance": {
+    "ARM-01": [
+      "Bir sayfalık kapsam belgesinde giriş, çıkış ve sürüm dışı işler bulunuyor.",
+      "Fiziksel başarı ölçütü için önerilen 10 mm nokta hatasının tasarım hedefi olduğu, garanti olmadığı yazılı."
+    ],
+    "ARM-02": [
+      "Temiz ortamda başlangıç komutu çalışıyor.",
+      "90 derece–pi/2 ve 100 mm–0.1 m dönüşümleri doğru.",
+      "Parametre değişikliği kodu kopyalamadan yapılabiliyor."
+    ],
+    "ARM-03": [
+      "Üç eklemin pozitif dönüşü ve sıfır konumu açıklanabiliyor.",
+      "Modelde 3 açıdan tek bir XYZ uç noktası üretilmesi tanımlı; uç yönelimi vaat edilmiyor."
+    ],
+    "ARM-04": [
+      "En az 5 bilinen duruş elle hesaplanan konumla uyumlu.",
+      "FK fonksiyonundaki her trigonometrik terimin hangi geometriyi temsil ettiği açıklanabiliyor."
+    ],
+    "ARM-05": [
+      "En az 10 geçerli hedefte IK→FK konum farkı 0.1 mm altında; bu yalnız sayısal model ölçütü.",
+      "Erişilemez hedefte NaN veya sessiz yanlış sonuç yerine açıklamalı başarısızlık dönüyor.",
+      "Çoklu çözüm ve taban ekseni belirsizliği örnekleri kayıtlı."
+    ],
+    "ARM-06": [
+      "20 örneğin beklenen ve gerçekleşen durumları tabloda.",
+      "İki geçersiz sınıf ayrı hata mesajlarına sahip.",
+      "Sayısal tolerans ve sınır reddetme politikası belgeli."
+    ],
+    "ARM-07": [
+      "Görsel uç koordinatı FK ile aynı kaynaktan geliyor.",
+      "Eksen etiketleri ve ölçek açık; model değişikliği parametrelerden yansıyor."
+    ],
+    "ARM-08": [
+      "Üç farklı geçerli hedef ve iki geçersiz hedef arayüzden denenebiliyor.",
+      "Geçersiz giriş bir önceki geçerli hareketi otomatik başlatmıyor.",
+      "Kaydedilen sonuç hedef, açı, hata ve model sürümünü içeriyor."
+    ],
+    "ARM-09": [
+      "Başlangıç/bitiş açıları doğru ve uç hızları sıfır.",
+      "20 örnek harekette hız/ivme limitleri kontrol ediliyor.",
+      "Eklem yörüngesinin Kartezyen düz çizgi olmadığı belgeli; masa/taban kesişen bir örnek hareket reddediliyor."
+    ],
+    "ARM-10": [
+      "Yeni bir ortamda README ile demo çalışıyor.",
+      "Hedef, çözüm ve simülasyon hatası kaydı mevcut.",
+      "Kritik FK/IK/yörünge fonksiyonlarında küçük bir değişikliği açıklayarak yapabiliyorsun."
+    ],
+    "ARM-11": [
+      "En az iki aktüatör mimarisi teknik veri ve toplam maliyetle karşılaştırılmış.",
+      "Ölçülebilen gerçek konum ile yalnız komut açısı ayrılmış.",
+      "Satın alma kararı bütçe, tork ve ölçüm yöntemiyle gerekçeli."
+    ],
+    "ARM-12": [
+      "Bağlantı kuponu montajda uyumlu veya düzeltme kaydı mevcut.",
+      "Kinematik link boylarıyla CAD eksen mesafeleri tutarlı.",
+      "Baskı, vidalar, yataklar ve motorlar BOM'da."
+    ],
+    "ARM-13": [
+      "Güç şeması ve pin/bağlantı tablosu var.",
+      "Haberleşme kesilince yeni komutların nasıl duracağı tanımlı.",
+      "Ölçüm yoksa telemetri bunu açıkça belirtiyor."
+    ],
+    "ARM-14": [
+      "Bağlantı kesilmesi görünür hata üretiyor.",
+      "Eski sıra numarası ikinci hareket başlatmıyor.",
+      "Geçersiz hedef komut kanalına gönderilmiyor."
+    ],
+    "ARM-15": [
+      "En az 10 küçük hareketin komut/ölçüm sonucu kayıtlı.",
+      "Besleme sınırları ve gerçek hareket yönü doğrulandı.",
+      "Feedback kaynağı açık; komut açısı ölçüm gibi sunulmuyor."
+    ],
+    "ARM-16": [
+      "Kontrolün hangi kısmının sana, hangi kısmının motorun dahili elektroniğine ait olduğu belgeli.",
+      "3 hedef için zaman grafikleri veya bağımsız ölçümler var.",
+      "Açı dönüşümü ve ofset uygulaması doğrulanmış."
+    ],
+    "ARM-17": [
+      "Üç eklem ayrı ayrı hareket edebiliyor.",
+      "Montajda sıkışan/kablo geren duruşlar kaydedilip sınırlandırılmış.",
+      "Gerçek boylar model parametre dosyasına işlendi."
+    ],
+    "ARM-18": [
+      "Her eklemin ofseti ve limitleri dosyada.",
+      "Üç başlangıç tekrarında fark ölçülmüş.",
+      "Homing yönteminin manuel veya sensörlü oluşu açık."
+    ],
+    "ARM-19": [
+      "Üç eklem ortak hareket süresiyle hedefe ilerliyor.",
+      "Kesinti senaryosu sonucu ve motor davranışı kayıtlı.",
+      "Komut ve gerçek veri ayrı; ölçüm yoksa takip hatası iddiası yok."
+    ],
+    "ARM-20": [
+      "10 hedef × 3 tekrar sonuç tablosu var.",
+      "Ölçüm yöntemi, çözünürlük ve belirsizlik açıklanmış.",
+      "10 mm hedef karşılanmıyorsa sürüm başarısı ilan edilmeden sınırlar/hata sebepleri kaydedilmiş."
+    ],
+    "ARM-21": [
+      "Değişiklik bir gözleme dayanıyor.",
+      "Aynı ölçüm setiyle önce/sonra karşılaştırma var.",
+      "Hedef tutmuyorsa erişim/yük/hız kısıtları ve açık kalan iş net."
+    ],
+    "ARM-22": [
+      "Başlangıçtan demo sonuna tüm adımlar belgede.",
+      "BOM, model ve kalibrasyon sürümleri birbiriyle uyumlu.",
+      "Donanım kısıtları ve başarısızlıklar açık."
+    ],
+    "ARM-23": [
+      "Demo, kod/CAD ve sonuç tablosu erişilebilir tek pakette.",
+      "Sayılar ölçüm raporuyla tutarlı.",
+      "Kritik bir hedef/limit değişikliğini yardımsız açıklayıp uygulayabiliyorsun."
+    ],
+    "ARM-24": [
+      "V1'in tamamlanan ve karşılanmayan ölçütleri ayrı.",
+      "Yeni işlev için ek gereksinimler ve tahmini çalışma belirlenmiş.",
+      "Akademik NeuroKinematics'in bu projenin tamamlanma şartı olmadığı korunmuş."
+    ]
+  }
+}

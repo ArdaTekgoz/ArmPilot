@@ -1,4 +1,27 @@
-# Yol haritası revizyonu R1 - Altı eksenli ArmPilot
+# Yol haritası revizyonu - güncel R3
+
+## R3 - Kullanıcı onaylı plan ve yayın eşitlemesi
+
+15 Ekim 2026: Kullanıcı incelemede sunulan **sekiz revizyonu onayladı** ve çalışma haritasındaki ArmPilot görevleriyle raporun birlikte güncellenmesini istedi. Aşağıdaki R1/R2 bölümleri karar geçmişidir; oradaki "henüz güncellenmedi" veya "öneri" ifadeleri yazıldıkları zamana aittir. Güncel görev sözleşmesi [24 ayrıntılı R3 görev kartı](arm-gorevleri-r3.md), makine tarafından okunabilir kaynağı [R3 plan verisi](arm-roadmap-r3.json), paylaşılabilir rapor [R3 PDF](../output/pdf/arm-rapor-r3.pdf) içindedir.
+
+| Onaylanan düzeltme | Uygulanan karşılığı |
+| --- | --- |
+| ARM-02 tek güne sıkışmayacak | Python/birim disiplini (~4 saat) ve ROS/MoveIt/UI ortam denemesi (~8 saat) ayrı alt oturumlar; ARM-02 haftaya başlar. |
+| ARM-03–06 model/planlama eksiklerini kapat | Gerçek CAD ölçüleri, altı eklem, TCP, URDF/Xacro, SRDF, IK ve planlama yapılandırması; kişisel 2R FK/IK örnekleri korunur. |
+| ARM-07 kendi ürün görünümünü teslim et | Kendi masaüstü penceresi, 3B kamera, eksen/TCP ve joint_states; RViz karşılaştırma aracıdır. |
+| ARM-08 poz ve kullanıcı akışını tamamla | XYZ+yönelim, Planla → Önizle → Yürüt, simülasyon/fiziksel mod, plan/sahne/model/başlangıç geçerliliği. |
+| ARM-09 gerçek planlama tanımını yap | Sabit modellenmiş sahnede çarpışma denetimli noktadan noktaya plan ve zamanlı yörünge; kişisel kübik örneği ayrı. |
+| Mock kontrolcü v0.1'den önce gelsin | ARM-09 içine erken mock kontrolcü alt oturumu; ARM-10 bunu bekler. ARM-14 gerçek protokol emülatörü ve hata testleri olarak kalır. |
+| ARM-13–20 donanım/ölçüm zincirini somutlaştır | Trajectory action → kontrolcü/köprü → STM32 → altı eklem; ölçülen/komutlanan/tahmin edilen durum, kalibrasyon, bağımsız konum/yönelim ölçümü. |
+| Süre/bağımlılık ve belge eşleşmesini yenile | Geçici 242 saat, ARM-10'a kadar 112 saat; 24 kod korunur. ARM-12/13, ARM-11 sonrasında bağımsız yürüyebilir; ARM-15 iki kolun kanıtını bekler. |
+
+**Tahminin sınırı:** 242 saat ilk planlama varsayımıdır; taahhüt veya ölçülmüş iş yükü değildir. Haftada 4 saatle yaklaşık 61 hafta, %25 pay senaryosuyla 76 hafta kapasite karşılığıdır; tedarik ve yeniden çalışma kesin bitiş tarihini belirsiz bırakır. ARM-02 ve ARM-04 sonunda yeniden tahmin edilir. ARM-01 için eski 4 saat tahmini korunur, gerçekleşen 3 saat kullanıcı tahmini ayrıca tutulur. Uzun görevler birden fazla haftalık oturuma bölünür.
+
+**Kabul ve kayıt bütünlüğü:** Web görev kodları korunur. Eski tarayıcı kayıtlarının notları ve gerçek süreleri silinmez; önceki durum ve kabul kutuları revizyon arşivine alınır. Önceden ilerleme bulunan bir kartın değişen kabul kutuları yeniden doğrulanır; eski tamamlanma yeni kapsam için otomatik başarı sayılmaz. Bu işlem gerçek kullanıcı verileri okunarak veya ilerleme uydurularak yapılmaz; tarayıcıdaki kayıt açılışında uygulanır.
+
+**Sürüm ayrımı:** Bugün plan/rapor/site güncellemesi yapılır. ARM-01 R2 kapanışı korunur; ARM-02 kurulumu veya öğrenme kodları başlamış sayılmaz. Orijinal 12 Ekim PDF'i tarihsel kaynak olarak değiştirilmez; yeni R3 raporu ayrı üretilir ve sitedeki ArmPilot rapor indirmesi güncel sürüme bağlanır.
+
+## R1 - Altı eksenli ArmPilot (karar geçmişi)
 
 Tarih: 15 Ekim 2026. Durum: Kullanıcının ürün hedefi güncellendi; aşağıdaki teknik mimari ve iş paketi içerikleri danışman önerisidir. Kurulum/uygulama yapılmış değildir.
 

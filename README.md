@@ -9,6 +9,7 @@ Proje sahibi: Arda TEKGÖZ. Geliştirme yöntemi: danışman desteğiyle uygulay
 - Tamamlanan iş paketi: **ARM-01 - Kullanım senaryosu ve sürüm sözleşmesi (R2)**.
 - Sonuç: Bir sayfalık kapsam PDF'i, sayısal tasarım varsayımları, kaynaklı eklem şeması ve kullanıcının CAD montaj kanıtı. Kullanıcı isteğiyle elle çizim ölçütü bu kanıtlarla değiştirildi.
 - Sıradaki iş: **ARM-02 - Çalışma düzeni ve ortam uyumluluğu**; henüz başlanmadı.
+- **R3 planı kullanıcı onaylıdır:** 24 görev, geçici 242 saat (ARM-10 yazılım kapısına kadar 112 saat). ARM-02 haftaya iki alt oturumla başlayacak; süreler ARM-02/04 sonrasında yeniden tahmin edilecek.
 - Robot kolu, motor ve STM32 kartı henüz mevcut değil. Hazır baskı için somut aday LoboCNC'nin WE-R2.4 tasarımıdır; kesin dosya sürümü, eksen/ölçü doğrulaması ve aktüatör seçimi henüz tamamlanmadı. Motor/kart tedariki sonraki aşamalarda değerlendirilecek.
 - Henüz çalıştırılabilir yazılım veya fiziksel doğrulama bulunmuyor.
 
@@ -19,6 +20,10 @@ Proje sahibi: Arda TEKGÖZ. Geliştirme yöntemi: danışman desteğiyle uygulay
 - [Erişim, yük, hız ve eklem açıklamasının gerekçeleri](docs/arm-01-tasarim-varsayimlari.md)
 - [Geliştirme ve öğrenme raporu](docs/rapor.md)
 - [6 eksenli hedefe geçiş ve yol haritası revizyonu](docs/yol-haritasi-revizyonu.md)
+- [24 ayrıntılı R3 görev kartı](docs/arm-gorevleri-r3.md)
+- [Güncel proje raporu ve yol haritası PDF'i](output/pdf/arm-rapor-r3.pdf)
+- [Onaylı plan verisi](docs/arm-roadmap-r3.json)
+- [Canlı çalışma haritası](https://arda-mekatronik-calisma-haritasi.decent-cloud-1314.chatgpt.site/)
 - [ARM-01 kanıtları](evidence/ARM-01/README.md)
 - [Kaynaklı UR5 eklem eksenleri ve referans şema](docs/references/README.md)
 - [WE-R2.4 mekanik aday incelemesi](docs/references/we-r24-candidate.md)
